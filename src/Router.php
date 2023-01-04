@@ -12,6 +12,7 @@ class BHRouter
 
     private static $pageStatus = 404;
     private static $includeFileType = "";
+    private static $fileName = "";
 
 
     static function find_slug($request){
@@ -26,6 +27,10 @@ class BHRouter
         $fileType = explode(".",$callback);
         $fileType = end($fileType);
         self::$includeFileType = ".".$fileType;
+        self::$fileName = str_replace(self::$includeFileType,"",$callback);
+
+
+
     }
 
 
@@ -120,14 +125,14 @@ class BHRouter
     static private function render($args = []){
 
         if(is_dir(self::$themeFolder)){
-            $newUrl = self::$themeFolder.self::$requestUrl.self::$includeFileType;
+            $newUrl = self::$themeFolder.self::$fileName.self::$includeFileType;
             if(file_exists($newUrl)){
                 require_once($newUrl);
                 self::$pageStatus = 200;
             }
             else {
                 self::$pageStatus = 404;
-                echo "File Not Found ".self::$themeFolder.self::$requestUrl;
+                echo "File Not Found ".self::$fileName.self::$includeFileType;
             }
         }else{
             self::$pageStatus = 404;
