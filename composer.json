@@ -4,9 +4,9 @@
     "license": "MIT",
     "description": "A simple and fast PHP router",
     "autoload": {
-        "psr-4": {
-            "Luckystar\\PhpRouter\\": "src/"
-        }
+        "classmap": [
+            "src/"
+        ]
     },
     "authors": [
         {
