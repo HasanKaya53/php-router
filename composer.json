@@ -1,0 +1,17 @@
+{
+    "name": "luckystar/php-router",
+    "type": "library",
+    "license": "mIT",
+    "autoload": {
+        "psr-4": {
+            "Luckystar\\PhpRouter\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Hasan Kaya",
+            "email": "hasankayaaa53@gmail.com"
+        }
+    ],
+    "require": {}
+}
