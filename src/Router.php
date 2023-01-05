@@ -15,7 +15,7 @@ class BHRouter
     private static $fileName = "";
 
 
-    static function find_slug($request){
+    static private function find_slug($request){
         if(strstr($request,"{")){
             return "true";
         }
@@ -23,16 +23,12 @@ class BHRouter
     }
 
 
-    static function fileType($callback){
+    static private function fileType($callback){
         $fileType = explode(".",$callback);
         $fileType = end($fileType);
         self::$includeFileType = ".".$fileType;
         self::$fileName = str_replace(self::$includeFileType,"",$callback);
-
-
-
     }
-
 
 
     static private function SetIndex(){
@@ -45,7 +41,7 @@ class BHRouter
     }
 
     // find request url
-    static public function findRequestUrl(){
+    static  public function findRequestUrl(){
 
         $folderPath = dirname($_SERVER['SCRIPT_NAME']);
         $urlPath = $_SERVER['REQUEST_URI'];
@@ -54,6 +50,29 @@ class BHRouter
         self::SetIndex();
 
 
+
+
+    }
+
+    static private function explodeRequest($request){
+
+        //$params = str_replace("/","",$request);
+        $params = explode("/",$request);
+
+        $paramsStatus = [];
+        foreach ($params as $key => $value) {
+          if(!empty($value)){
+                $paramsStatus[$value] =
+                    [
+                        "Status" => self::find_slug($value),
+
+                    ];
+
+
+            }
+        }
+
+        return $paramsStatus;
     }
 
     // route function
@@ -62,21 +81,88 @@ class BHRouter
         // echo self::$method." ";
 
         self::$currentUrl = $request;
-
-
         self::findRequestUrl();
 
 
 
 
+        /* echo self::find_slug($request); */
 
+
+
+
+        $paramsChecker = self::explodeRequest($request);
+
+
+        
 
         if((self::$currentUrl != self::$requestUrl) && self::$method != "FINAL" ){
-            // echo "girdi";
-            return false;
+            if(max($paramsChecker)  === false)  return false; //parametre yoktur..
+
+            //parametre vardır.
+            $newReqUrl = "/";
+            $getArray = [];
+
+            foreach ($paramsChecker as $key => $value) {
+                if($value["Status"] === "false") $newReqUrl .= $key."/";
+                else{
+
+
+                    $newKey = str_replace("{","",$key);
+                    $newKey = str_replace("}","",$newKey);
+
+
+
+                    $getArray[$newKey] = "";
+                }
+            }
+
+
+            if($newReqUrl[strlen($newReqUrl)-1] == "/")
+                $newReqUrl = substr($newReqUrl,0,-1);
+
+
+
+
+
+            if(strstr(self::$requestUrl,$newReqUrl) === false) return false;
+            else{
+
+                $newReqUrl = str_replace($newReqUrl,"",self::$requestUrl);
+
+                $newReqUrl = explode("/",$newReqUrl);
+
+                $newReqUrl = array_filter($newReqUrl);
+
+
+
+
+
+                $counter = 0;
+                foreach ($getArray as $key => $value) {
+
+                    if(empty($newReqUrl[$counter+1])) return false;
+                    $getArray[$key] = $newReqUrl[$counter+1];
+
+                    if(strstr(self::$currentUrl,$key)){
+
+
+                        self::$currentUrl = str_replace("{".$key."}",$getArray[$key],self::$currentUrl);
+
+
+                    }
+
+
+                    $counter++;
+                }
+
+                $_GET = array_merge($_GET,$getArray);
+
+
+
+
+            }
         }
-
-
 
 
 
@@ -84,17 +170,26 @@ class BHRouter
         if(self::$currentUrl[0] == "/") self::$currentUrl = substr(self::$currentUrl, 1);
 
 
+
         if(!is_array($args)) $args = [];
+
+
+
 
         if(is_callable($callback)){
 
-            // echo self::$currentUrl."-".self::$requestUrl;
+
             if(self::$currentUrl == self::$requestUrl) $callback();
             exit;
         }else if(function_exists($callback)){
             $callback();
             exit;
         }else{
+
+
+
+
+
             self::fileType($callback);
 
             self::render($args);

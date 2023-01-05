@@ -63,6 +63,21 @@ $pages = ['index','header','footer'];
 LuckyStar\PhpRouter\BHRouter::get("/", 'index.php', $pages);
 ```
 
+Get URL Parameters
+```php
+LuckyStar\PhpRouter\BHRouter::get('/bloglar/tes/{name}/{surname}', 'bloglar.php');
+```
+OR
+```php
+LuckyStar\PhpRouter\BHRouter::get('/bloglar/tes/{name}/{surname}', function(){
+    echo $_GET['name'];
+    echo $_GET['surname'];
+});
+```
+
+
+
+
 
 404 pages usage: (should be added to the end of the page. )
 ```php
@@ -70,4 +85,8 @@ LuckyStar\PhpRouter\BHRouter::noOne("/404", function(){
     echo "there is no such page";
 });
 ```
+
+
+
+
 
