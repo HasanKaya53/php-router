@@ -43,8 +43,11 @@ class BHRouter
     // find request url
     static  public function findRequestUrl(){
 
-        $folderPath = dirname($_SERVER['SCRIPT_NAME']);
+        $fullPath = $_SERVER['DOCUMENT_ROOT'];
+        $realPath = realpath('.');
         $urlPath = $_SERVER['REQUEST_URI'];
+
+        $folderPath = str_replace($fullPath,"",$realPath);
         self::$requestUrl = substr($urlPath, strlen($folderPath));
 
         self::SetIndex();
